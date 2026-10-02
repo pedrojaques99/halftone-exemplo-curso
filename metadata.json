@@ -1,0 +1,6 @@
+{
+  "name": "Atelier Retro - Vintage Print & Halftone Studio",
+  "description": "Aplicativo de efeitos visuais de impressão e arte vintage, risografia, gravura e halftone em tempo real para imagens e vídeos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
