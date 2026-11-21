@@ -17,10 +17,12 @@ import {
   Circle,
   Eye,
   Settings2,
+  ChevronsLeftRight,
 } from 'lucide-react';
 import { EffectParams, GradientMap, LoadedMedia, PatternType, Preset } from '../types';
 import { PRESETS, VINTAGE_GRADIENT_MAPS } from '../presets';
 import { WebGLRetroPipeline } from '../engine/webglPipeline';
+import { renderEffectThumbs } from '../utils/effectThumbs';
 
 interface StudioViewProps {
   media: LoadedMedia;
@@ -70,6 +72,14 @@ export const StudioView: React.FC<StudioViewProps> = ({
   const [copied, setCopied] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
+
+  // Miniatura de cada preset na imagem do usuário (um contexto WebGL só)
+  const [presetThumbs, setPresetThumbs] = useState<string[]>([]);
+  useEffect(() => {
+    setPresetThumbs(
+      renderEffectThumbs(media.element, media.width, media.height, PRESETS.map((p) => p.params), { maxSide: 220 })
+    );
+  }, [media]);
 
   // Update pipeline config whenever params or gradient change
   const syncPipeline = useCallback(() => {
@@ -268,20 +278,15 @@ export const StudioView: React.FC<StudioViewProps> = ({
   return (
     <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
       {/* Main Viewport */}
-      <div className="flex-1 flex flex-col bg-[#0e0e10] overflow-hidden select-none">
+      <div className="flex-1 flex flex-col bg-well overflow-hidden select-none">
         {/* Top Viewport Toolbar */}
-        <div className="h-11 px-4 border-b border-neutral-800/80 bg-[#141417] flex items-center justify-between z-10 shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="h-11 px-4 border-b border-neutral-800/80 bg-bar flex items-center justify-between z-10 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
             <span className="text-xs text-neutral-400 font-medium truncate max-w-[200px]">
               {media.fileName}
             </span>
-            <span className="text-neutral-700">·</span>
-            <span className="text-[11px] text-neutral-500 font-mono">
+            <span className="hidden sm:inline text-xs text-neutral-500 tabular-nums whitespace-nowrap">
               {media.width} × {media.height}
-            </span>
-            <span className="text-neutral-700">·</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-mono uppercase font-semibold">
-              {media.type === 'video' ? 'VÍDEO 60FPS' : 'IMAGEM'}
             </span>
           </div>
 
@@ -291,13 +296,14 @@ export const StudioView: React.FC<StudioViewProps> = ({
               onClick={() => setShowSplit(!showSplit)}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-colors ${
                 showSplit
-                  ? 'bg-amber-400/20 text-amber-300 border border-amber-500/40'
+                  ? 'bg-amber-400/20 text-amber-300'
                   : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
               }`}
-              title="Comparar Antes / Depois"
+              title="Comparar antes e depois"
+              aria-pressed={showSplit}
             >
               <SplitSquareVertical className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Antes / Depois</span>
+              <span className="hidden sm:inline">Antes e depois</span>
             </button>
 
             {/* Invert Toggle */}
@@ -309,6 +315,8 @@ export const StudioView: React.FC<StudioViewProps> = ({
                   : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
               }`}
               title="Inverter luzes e sombras"
+              aria-label="Inverter luzes e sombras"
+              aria-pressed={params.invert}
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
@@ -322,11 +330,6 @@ export const StudioView: React.FC<StudioViewProps> = ({
               {zoomFit ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
             </button>
 
-            {/* FPS Badge */}
-            <div className="flex items-center gap-1.5 pl-2 border-l border-neutral-800 text-[11px] font-mono text-emerald-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>{fps} FPS</span>
-            </div>
           </div>
         </div>
 
@@ -336,11 +339,6 @@ export const StudioView: React.FC<StudioViewProps> = ({
           onMouseMove={handleSplitMouseMove}
           onMouseUp={() => setIsDraggingSplit(false)}
           className="flex-1 overflow-hidden relative flex items-center justify-center p-4"
-          style={{
-            backgroundImage:
-              'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
         >
           <div
             className={`relative max-w-full max-h-full transition-transform flex items-center justify-center ${
@@ -362,9 +360,9 @@ export const StudioView: React.FC<StudioViewProps> = ({
                   setIsDraggingSplit(true);
                 }}
               >
-                <div className="w-0.5 h-full bg-amber-400 shadow-md group-hover:w-1 transition-all" />
-                <div className="w-7 h-7 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center text-[10px] font-bold shadow-lg border border-black/20 group-hover:scale-110 transition-transform">
-                  ⇄
+                <div className="absolute inset-y-0 w-px bg-amber-400 group-hover:bg-amber-200 transition-colors" />
+                <div className="relative w-7 h-7 rounded-full bg-amber-400 group-hover:bg-amber-300 text-neutral-950 flex items-center justify-center shadow-lg transition-colors">
+                  <ChevronsLeftRight className="w-4 h-4" />
                 </div>
               </div>
             )}
@@ -373,7 +371,7 @@ export const StudioView: React.FC<StudioViewProps> = ({
 
         {/* Video Scrubber Controls (if video) */}
         {media.type === 'video' && (
-          <div className="h-14 px-6 border-t border-neutral-800 bg-[#141417] flex items-center gap-4 z-10 shrink-0">
+          <div className="h-14 px-6 border-t border-neutral-800 bg-bar flex items-center gap-4 z-10 shrink-0">
             <button
               onClick={togglePlayPause}
               className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-amber-400 transition-colors"
@@ -418,9 +416,9 @@ export const StudioView: React.FC<StudioViewProps> = ({
       </div>
 
       {/* Control Panel Drawer */}
-      <div className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-neutral-800 bg-[#161619] flex flex-col z-20 shrink-0 h-[380px] lg:h-auto overflow-hidden">
+      <div className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-neutral-800 bg-surface flex flex-col z-20 shrink-0 h-[380px] lg:h-auto overflow-hidden">
         {/* Panel Tabs */}
-        <div className="h-12 border-b border-neutral-800 px-4 flex items-center gap-1 bg-[#18181c] shrink-0">
+        <div className="h-12 border-b border-neutral-800 px-4 flex items-center gap-1 bg-raised shrink-0">
           <button
             onClick={() => setActiveTab('presets')}
             className={`flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-colors text-center ${
@@ -457,40 +455,40 @@ export const StudioView: React.FC<StudioViewProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* TAB 1: PRESETS */}
           {activeTab === 'presets' && (
-            <div className="space-y-2.5">
-              <div className="text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mb-2">
-                Estilos Clássicos de Impressão Vintage
-              </div>
-
-              {PRESETS.map((preset) => {
-                const isSelected = params.patternType === preset.params.patternType;
+            <div className="grid grid-cols-2 gap-3">
+              {PRESETS.map((preset, i) => {
+                const isSelected = params.patternType === preset.params.patternType && params.gradientMapId === preset.params.gradientMapId;
                 return (
                   <button
                     key={preset.id}
                     onClick={() => handleSelectPreset(preset)}
-                    className={`w-full p-3 rounded-xl text-left border transition-all flex flex-col gap-1.5 ${
-                      isSelected
-                        ? 'border-amber-400 bg-amber-950/20 shadow-sm'
-                        : 'border-neutral-800/80 bg-neutral-900/60 hover:border-neutral-700 hover:bg-neutral-900'
-                    }`}
+                    title={preset.description}
+                    aria-pressed={isSelected}
+                    className="group flex flex-col gap-1.5 text-left"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs font-semibold text-neutral-100 flex items-center gap-2">
-                        <span>{preset.name}</span>
-                        {preset.badge && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-400 text-neutral-950 font-bold uppercase">
-                            {preset.badge}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[10px] text-neutral-400 font-mono">
-                        {preset.subtitle}
-                      </span>
+                    <div
+                      className={`relative w-full aspect-square rounded-lg overflow-hidden bg-raised ring-offset-2 ring-offset-surface transition-shadow ${
+                        isSelected ? 'ring-2 ring-amber-400' : 'ring-1 ring-line group-hover:ring-line-strong'
+                      }`}
+                    >
+                      {presetThumbs[i] ? (
+                        <img src={presetThumbs[i]} alt="" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                      ) : (
+                        <div className="w-full h-full animate-pulse bg-surface-hover" />
+                      )}
+                      {isSelected && (
+                        <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center">
+                          <Check className="w-3 h-3" strokeWidth={3} />
+                        </span>
+                      )}
                     </div>
-
-                    <div className="text-[11px] text-neutral-400 leading-tight">
-                      {preset.description}
-                    </div>
+                    <span
+                      className={`text-xs leading-tight transition-colors ${
+                        isSelected ? 'text-amber-300 font-semibold' : 'text-neutral-300 group-hover:text-white'
+                      }`}
+                    >
+                      {preset.name}
+                    </span>
                   </button>
                 );
               })}
@@ -817,7 +815,7 @@ export const StudioView: React.FC<StudioViewProps> = ({
       {/* Export / Save Modal */}
       {isExportOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
-          <div className="w-full max-w-md bg-[#18181c] border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+          <div className="w-full max-w-md bg-raised border border-neutral-800 rounded-2xl p-6 shadow-2xl">
             <h3 className="font-serif text-2xl text-neutral-100 mb-2">
               Salvar Arte Final
             </h3>

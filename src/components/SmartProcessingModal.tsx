@@ -37,8 +37,8 @@ export const SmartProcessingModal: React.FC<SmartProcessingModalProps> = ({
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#121214]/90 backdrop-blur-md flex items-center justify-center p-6">
-      <div className="w-full max-w-lg bg-[#18181c] border border-neutral-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-canvas/90 backdrop-blur-md flex items-center justify-center p-6">
+      <div className="w-full max-w-lg bg-raised border border-neutral-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
         {/* Subtle background glow */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 

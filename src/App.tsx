@@ -62,11 +62,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121214] text-neutral-100 flex flex-col antialiased selection:bg-amber-400 selection:text-neutral-950 font-sans">
+    <div className="min-h-screen bg-canvas text-neutral-100 flex flex-col antialiased selection:bg-amber-400 selection:text-neutral-950 font-sans">
       {/* Top Bar Contract compliant Header */}
       <Header
         currentStep={currentStep}
-        onGoBack={() => setCurrentStep(1)}
+        onGoBack={() => setCurrentStep(currentStep === 3 ? 1 : 3)}
         onReset={handleReset}
         onOpenExport={() => setIsExportOpen(true)}
         hasMedia={media !== null}

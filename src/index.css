@@ -4,6 +4,17 @@
   --font-serif: "Instrument Serif", Georgia, serif;
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+
+  /* Superfícies (escuro de estúdio de impressão). Única fonte das cores cruas. */
+  --color-canvas: #121214;
+  --color-well: #0e0e10;
+  --color-bar: #141417;
+  --color-surface: #161619;
+  --color-surface-hover: #1a1a1e;
+  --color-raised: #18181c;
+  --color-line: #27272a;
+  --color-line-strong: #3f3f46;
+  --color-ink-amber: #fbbf24;
 }
 
 /* Custom minimal scrollbar */
@@ -12,14 +23,14 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #121214;
+  background: var(--color-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: var(--color-line);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: var(--color-line-strong);
 }
 
 /* Custom Range Input */
@@ -29,13 +40,18 @@ input[type="range"]::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #fbbf24;
+  background: var(--color-ink-amber);
   cursor: pointer;
-  border: 2px solid #18181b;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  transition: transform 0.1s ease;
+  border: 1px solid var(--color-raised);
+  transition: background-color 0.1s ease;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+  background: var(--color-surface-hover);
+  border-color: var(--color-ink-amber);
+}
+
+/* Tailwind v4 zera o cursor do botão */
+:is(button, [role="button"], a[href]):not(:disabled) {
+  cursor: pointer;
 }
